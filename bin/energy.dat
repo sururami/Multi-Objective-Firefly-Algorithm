@@ -1,0 +1,28 @@
+
+     ######################################################################
+   ##########################################################################
+  ###                                                                      ###
+ ###            TINKER  ---  Software Tools for Molecular Design            ###
+ ##                                                                          ##
+ ##                        Version 7.1  February 2015                        ##
+ ##                                                                          ##
+ ##               Copyright (c)  Jay William Ponder  1990-2015               ##
+ ###                           All Rights Reserved                          ###
+  ###                                                                      ###
+   ##########################################################################
+     ######################################################################
+
+ HOLA desde echarge3
+ Time:    0.00000000    
+
+ Total Potential Energy :              0.2314D+14 Kcal/mole
+
+ Energy Component Breakdown :           Kcal/mole      Interactions
+
+ Bond Stretching                          54.6094            574
+ Angle Bending                           151.8570           1025
+ Urey-Bradley                             10.6384            478
+ Improper Dihedral                         6.2694            127
+ Torsional Angle                         226.1492           1499
+ Van der Waals                         0.2314D+14         160566
+ Charge-Charge                          -998.6345         158335
