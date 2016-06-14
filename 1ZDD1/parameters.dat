@@ -1,0 +1,75 @@
+/******************************************
+   Parameters of last execution
+   of PSP instance 'instances/1ZDD.seq'
+******************************************/
+
+Energy     = CHARMm27 # Energy function
+depth      = 4 # number of recursive subdivisions of the objective space
+objectives = 2 # number of objectives to the problem
+residues   = 34 # number of residues in the protein
+archive    = 1000 # maximum number of solutions to be held in the nondominated solutions archive
+iterations = 1 # max number of iterations allowed
+Tmax       = 50000 # max number of fitness function evaluations allowed
+protein    = instances/1ZDD.seq # input protein  instance file
+dir        = 1ZDD1 # output directory for simulation results
+SS         = 1 # Structure constraints (1=Secondary,0=Supersecondary)
+/******************************************
+   Parameters of last execution
+   of PSP instance 'instances/1ZDD.seq'
+******************************************/
+
+Energy     = CHARMm27 # Energy function
+depth      = 4 # number of recursive subdivisions of the objective space
+objectives = 2 # number of objectives to the problem
+residues   = 34 # number of residues in the protein
+archive    = 1000 # maximum number of solutions to be held in the nondominated solutions archive
+iterations = 1 # max number of iterations allowed
+Tmax       = 50000 # max number of fitness function evaluations allowed
+protein    = instances/1ZDD.seq # input protein  instance file
+dir        = 1ZDD1 # output directory for simulation results
+SS         = 1 # Structure constraints (1=Secondary,0=Supersecondary)
+/******************************************
+   Parameters of last execution
+   of PSP instance 'instances/1ZDD.seq'
+******************************************/
+
+Energy     = CHARMm27 # Energy function
+depth      = 4 # number of recursive subdivisions of the objective space
+objectives = 2 # number of objectives to the problem
+residues   = 34 # number of residues in the protein
+archive    = 1000 # maximum number of solutions to be held in the nondominated solutions archive
+iterations = 1 # max number of iterations allowed
+Tmax       = 50000 # max number of fitness function evaluations allowed
+protein    = instances/1ZDD.seq # input protein  instance file
+dir        = 1ZDD1 # output directory for simulation results
+SS         = 1 # Structure constraints (1=Secondary,0=Supersecondary)
+/******************************************
+   Parameters of last execution
+   of PSP instance 'instances/1ZDD.seq'
+******************************************/
+
+Energy     = CHARMm27 # Energy function
+depth      = 4 # number of recursive subdivisions of the objective space
+objectives = 2 # number of objectives to the problem
+residues   = 34 # number of residues in the protein
+archive    = 1000 # maximum number of solutions to be held in the nondominated solutions archive
+iterations = 1 # max number of iterations allowed
+Tmax       = 50000 # max number of fitness function evaluations allowed
+protein    = instances/1ZDD.seq # input protein  instance file
+dir        = 1ZDD1 # output directory for simulation results
+SS         = 1 # Structure constraints (1=Secondary,0=Supersecondary)
+/******************************************
+   Parameters of last execution
+   of PSP instance 'instances/1ZDD.seq'
+******************************************/
+
+Energy     = CHARMm27 # Energy function
+depth      = 4 # number of recursive subdivisions of the objective space
+objectives = 2 # number of objectives to the problem
+residues   = 34 # number of residues in the protein
+archive    = 1000 # maximum number of solutions to be held in the nondominated solutions archive
+iterations = 1 # max number of iterations allowed
+Tmax       = 50000 # max number of fitness function evaluations allowed
+protein    = instances/1ZDD.seq # input protein  instance file
+dir        = 1ZDD1 # output directory for simulation results
+SS         = 1 # Structure constraints (1=Secondary,0=Supersecondary)

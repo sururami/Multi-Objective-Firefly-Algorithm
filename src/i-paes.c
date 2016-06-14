@@ -71,6 +71,9 @@ sol *m; // mutant solution
 sol *arc; // archive of solutions
 sol *app;
 
+int N_fireflies;
+double max_obj1=0, max_obj2=0;
+
 
 int phi[8][2];
 int psi[8][2];
@@ -109,49 +112,106 @@ void MO_FA_GMJ(){
   double M1;
   
   int generations=10000;
-  int NumberFireflies = 1000;
+ // int NumberFireflies = 1000;
   
   sol *FA, *FB, *FR;
 
-    FA   = (sol *)malloc(MAX_POP*sizeof(sol));
-    FB   = (sol *)malloc(NumberFireflies*sizeof(sol));
-    FR   = (sol *)malloc(MAX_POP*sizeof(sol));
+  //  FA   = (sol *)malloc(sizeof(sol));
+  //  FB   = (sol *)malloc(sizeof(sol));
+    FR   = (sol *)malloc(sizeof(sol));
   
   for(i=1; i < generations; i++){
-    for(j=0; j< NumberFireflies; j++){
-
-  	copySolution(FA,&FireflyArray[k]);
-    for(k=0; k< NumberFireflies;k++){
+    for(j=0; j< N_fireflies; j++){
+  	copySolution(FA,&FireflyArray[j]);
+    for(k=0; k< N_fireflies;k++){
     	copySolution(FB,&FireflyArray[k]);
        
-        if(FA->obj!=FB->obj){
+        if(j!=k){
 
-          evaluate(FA, problem);
-          evaluate(FB, problem);
+          //evaluate(FA, problem);
+          //evaluate(FB, problem);
           
-          M1 = exp((-1)*((double)(2.0*num_evaluations)/(double)Tmax));
-          M2 = 1 + (int)(((double)genes/(double)4) * exp(-(double)(2.0*num_evaluations)/(double)Tmax));
           
           result = compare_min(FA->obj, FB->obj, objectives);
         
-
           if(result==-1){ // FB Dominates FA ----------> Epsilon Dominating
 
-              global_mutation(&FireflyArray[0], M1); // global mutation
+              //M1 = exp((-1)*((double)(2.0*num_evaluations)/(double)Tmax));
+              //M2 = 1 + (int)(((double)genes/(double)4) * exp(-(double)(2.0*num_evaluations)/(double)Tmax));
+ 
+	      M1=sqrt(pow(FA->objNorm[0]-FB->objNorm[0],2)+pow(FA->objNorm[1]-FB->objNorm[1],2))/sqrt(2);
+              M2= 1 + (int)(((double)(genes)/4) * M1);
+              M1*=100;
 
-              //local_mutation(&cl[1], M2); // local mutation
+	      cl[0] = FireflyArray[j];   // copy the current solution
+      	      cl[1] = FireflyArray[j];   // copy the current solution
+      
+              global_mutation(&cl[0], M1); // global mutation
+              local_mutation(&cl[1], M2); // local mutation
               
-              evaluate(FR, problem);
-              
-              result = compare_min((&FB[0])->obj, (&FR[0])->obj, objectives);
-              
-              if(result==1) //FB dominate FR
-                FireflyArray[k]=FR[0];
-          }
+              evaluate(&cl[0], problem);
+              evaluate(&cl[1], problem);              
+
+              result = compare_min((&cl[0])->obj, (&cl[1])->obj, objectives);
+              if (result == -1) cl[0]=cl[1];
+	      result = compare_min((&cl[0])->obj, (&FireflyArray[j])->obj, objectives);
+              if(result==1){ //FB dominate FR
+                FireflyArray[j]=cl[0];
+                Normalizar_sol(j);
+              }
+           }
         }       
       }      
     }    
   }  
+}
+
+void Maximos_iniciales(){
+
+  double a=FireflyArray[0].obj[0];
+
+  max_obj1 = fabs(a);
+  max_obj2 = fabs(FireflyArray[0].obj[1]);
+
+  for(int i=1; i < N_fireflies; i++){
+   if (fabs(FireflyArray[i].obj[0]) > max_obj1) max_obj1=fabs(FireflyArray[i].obj[0]);
+   if (fabs(FireflyArray[i].obj[1]) > max_obj2) max_obj2=fabs(FireflyArray[i].obj[1]);
+  }
+}
+
+
+void Normalizar(int objetivo){
+
+  for (int i=0; i < N_fireflies; i++){
+   FireflyArray[i].objNorm[objetivo]=(-1*(FireflyArray[i]).obj[objetivo])/max_obj1;
+   FireflyArray[i].objNorm[objetivo]=((FireflyArray[i]).objNorm[objetivo]+1)/2;
+  }
+}
+
+
+void Normalizar_sol(int i){
+
+   if (fabs(FireflyArray[i].obj[0]) > max_obj1) { 
+      max_obj1=fabs(FireflyArray[i].obj[0]);
+      Normalizar(0);
+   }
+   else FireflyArray[i].objNorm[0]=(-1*FireflyArray[i].obj[0])/max_obj1;
+   if (fabs(FireflyArray[i].obj[1]) > max_obj2) {
+      max_obj2=fabs(FireflyArray[i].obj[1]);
+      Normalizar(1);
+   }
+   else FireflyArray[i].objNorm[1]=(-1*FireflyArray[i].obj[1])/max_obj1;
+}
+
+int comparate_min(sol* s1, sol* s2){
+/*Devuelve 1 si s1 domina a s2
+*/
+
+if( (s1->obj[0] <= s2->obj[0]) && (s1->obj[1] <= s2->obj[1]) && ((s1->obj[0] < s2->obj[0]) || (s1->obj[1] < s2->obj[1] ) ) )
+	return 1;
+return 0;
+
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,11 +340,11 @@ void init_MOFA(int N_Fireflies)
   // allocate memory for solutions
 
 
-  FireflyArray = (sol*) malloc(N_Fireflies * MAX_POP*sizeof(sol));
+  FireflyArray = (sol*) malloc(N_Fireflies *sizeof(sol));
 
-  curr   = (sol *)malloc(MAX_POP*sizeof(sol));
+  curr   = (sol *)malloc(sizeof(sol));
   cl  = (sol *)malloc(MAX_CLONES*sizeof(sol));
-  m   = (sol *)malloc(MAX_POP*sizeof(sol));
+  m   = (sol *)malloc(sizeof(sol));
   arc = (sol *)malloc(MAX_ARC*sizeof(sol));
   app = (sol *)malloc(MAX_ARC*sizeof(sol));
 
@@ -318,8 +378,10 @@ void init_MOFA(int N_Fireflies)
       phi[6][0] =  -160;phi[6][1] = -50;  psi[6][0] = 50;   psi[6][1] = 100; // t
       phi[7][0] =  -180;phi[7][1] = 180;  psi[7][0] = -180; psi[7][1] = 180; // U (undefined)
     }
- int k;
- for( k=0; k < N_Fireflies*MAX_POP; k+=MAX_POP){  
+
+
+
+ 
     fdesc = fopen(protein,"r");
     if(fdesc == NULL)
     {
@@ -338,23 +400,26 @@ void init_MOFA(int N_Fireflies)
       curr->chrom[i].type = NameToType(curr->chrom[i].name);
       curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
     }
-  fclose(fdesc);
+    fclose(fdesc);
   
-  curr->energy = 0.0;
-  curr->to_evaluate = 1;
+    curr->energy = 0.0;
+    curr->to_evaluate = 1;
 
-   
-  // initialise curr by randomly selecting the backbone and sidechain torsion angles 
-  // in the constrained regions.
-  for (j = 0; j < genes; j++)
-    {
-      res* r = &curr->chrom[j];
-      randConstAngles(r);
-    }
+    int k;
+    for( k=0; k < N_Fireflies; k++){ 
+      // initialise curr by randomly selecting the backbone and sidechain torsion angles 
+      // in the constrained regions.
+      FireflyArray[k]=*curr;
+	
+      for (j = 0; j < genes; j++)
+      {
+        res* r = &(FireflyArray[k].chrom[j]);
+        randConstAngles(r);
+      }
+      evaluate(&FireflyArray[k], problem); 
+     }
 
-  copySolution(&FireflyArray[k],curr);
-  
- }
+
  
 }
 
@@ -384,6 +449,8 @@ void copySolution(sol* A, sol *B){
     }
     
 }
+
+
 int main(int argc, char *argv[])
 {
 
@@ -445,19 +512,15 @@ int main(int argc, char *argv[])
     
   signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  int ejemplos= 100;
-  init_MOFA(ejemplos);
-  omp_set_num_threads(100);
+  N_fireflies= 100;
+  init_MOFA(N_fireflies);
   double time1=omp_get_wtime();
   #pragma omp parallel for
-
-  for(int p=0; p < ejemplos  ; p++  ){
-	evaluate(&FireflyArray[p*MAX_POP], problem);
-  	printf("\n\n\n Energia Actual: %f\n",(&FireflyArray[p*MAX_POP])->energy);
+  for(int p=0; p < N_fireflies  ; p++  ){
+  	printf("\n\n\n Energia Actual: %f\n",(&FireflyArray[p])->energy);
   } 
   double time2=omp_get_wtime();
-
-	printf("Tiempo: %f\n", time2-time1);
+  printf("Tiempo: %f\n", time2-time1);
 
 /*
 

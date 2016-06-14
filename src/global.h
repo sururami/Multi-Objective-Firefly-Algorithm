@@ -24,8 +24,7 @@ using namespace std;
 /*----------------------------------------------*/
 
 # define MAX_RESIDUES 200  // change as necessary
-# define MAX_OBJ 3         // change as necessary
-# define MAX_POP 3         // change as necessary
+# define MAX_OBJ 2         // change as necessary
 # define MAX_ARC 1000      // change as necessary
 # define MAX_LOC 32768     // number of locations in grid (set for a three-objective problem using depth 5)
 # define LARGE 2000000000  // should be about the maximum size of an integer for your compiler
@@ -43,7 +42,7 @@ using namespace std;
 #endif
 /*----------------------------------------------------------------------*/
 
-# define COIN(p)  (RandomUniform() < p)
+# define COIN(p)  (RandomUniform() * 100 < p)
 
 extern FILE *fp;
 
@@ -61,6 +60,7 @@ typedef struct solution
 {
   res chrom[MAX_RESIDUES];
   double obj[MAX_OBJ];
+  double objNorm[MAX_OBJ];
   int grid_loc;
   double energy;
   short to_evaluate;
@@ -120,6 +120,10 @@ void print_params(const char *file);
 void init_MOFA(int n);
 void MO_FA_GMJ();
 void copySolution(sol* A,sol* B);
+void Normalizar_sol(int i);
+void Maximos_iniciales();
+void Normalizar(int objetivo);
+int comparate_min(sol* a, sol *b);
 
 void inicializacion_MOABC();
 void CopyStruct(sol *dest, sol *src);
