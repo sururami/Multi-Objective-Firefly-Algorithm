@@ -56,4 +56,4 @@ randomlib.o: random/randomlib.c
 	$(CC) $(FLAG) random/randomlib.c
 	
 clean:
-	rm *.o ../i-paes
+	rm *.o ../i-paes2

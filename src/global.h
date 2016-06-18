@@ -44,6 +44,9 @@ using namespace std;
 
 # define COIN(p)  (RandomUniform() * 100 < p)
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 extern FILE *fp;
 
 typedef struct residue
@@ -124,7 +127,8 @@ void Normalizar_sol(int i);
 void Maximos_iniciales();
 void Normalizar(int objetivo);
 int comparate_min(sol* a, sol *b);
-
+void print_sol(sol* s,int p,int i,const char* file);
+void print_sol(sol* s,int p,const char* file);
 void inicializacion_MOABC();
 void CopyStruct(sol *dest, sol *src);
 

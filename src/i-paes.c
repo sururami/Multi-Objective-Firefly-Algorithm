@@ -105,65 +105,57 @@ MultiObjective Firefly Algorithm
 
 */
 
-void MO_FA_GMJ(){
-  int i, j, k, result;
+void MO_FA_GMJ()
+{
+    int result;
   
-   char M2;
-  double M1;
+    char M2;
+    double M1;
   
-  int generations=10000;
- // int NumberFireflies = 1000;
+    int generations=50;
   
-  sol *FA, *FB, *FR;
-
-  //  FA   = (sol *)malloc(sizeof(sol));
-  //  FB   = (sol *)malloc(sizeof(sol));
+    sol *FR;
     FR   = (sol *)malloc(sizeof(sol));
-  
-  for(i=1; i < generations; i++){
-    for(j=0; j< N_fireflies; j++){
-  	copySolution(FA,&FireflyArray[j]);
-    for(k=0; k< N_fireflies;k++){
-    	copySolution(FB,&FireflyArray[k]);
-       
-        if(j!=k){
+    int flag=1;
+    int num_evaluations=0;
+    #pragma omp parallel for collapse(2) shared(flag, cl M1, M2, num_evaluations) 
+    for(int j=0; j< N_fireflies && num_evaluations >= 1000; j++){
+        for(int k=0; k < N_fireflies && num_evaluations >= 1000; k++){
+            if(j!=k){
+		printf("Holita :%d\n",num_evaluations);
+                num_evaluations++;
+                result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
+                if(result==1){ // K Domina J ----------> Epsilon Dominating
+                    //M1 = Distancia Euclidea de las dos soluciones dividido entre la Raiz de 2
+                    M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
+                    //M2 = Modificador de M1 para realizarlo un 25 % de las veces. Se le suma 1 para hacerlo al menos 1 vez
+                    M2= 1 + (int)(((double)(genes)/4) * M1);
+                    M1*=100;
 
-          //evaluate(FA, problem);
-          //evaluate(FB, problem);
-          
-          
-          result = compare_min(FA->obj, FB->obj, objectives);
-        
-          if(result==-1){ // FB Dominates FA ----------> Epsilon Dominating
+                    cl[0] = FireflyArray[j];   // Copia la Solucion en el primer Clon
+                    cl[1] = FireflyArray[j];   // Copia la Solucion en el segundo Clon
+    
+                    global_mutation(&cl[0], M1); // Mutacion Global sobre el primer Clon
+                    local_mutation(&cl[1], M2);  // Mutacion Local sobre el segundo Clon
+            
+                    evaluate(&cl[0], problem);
+                    evaluate(&cl[1], problem);              
 
-              //M1 = exp((-1)*((double)(2.0*num_evaluations)/(double)Tmax));
-              //M2 = 1 + (int)(((double)genes/(double)4) * exp(-(double)(2.0*num_evaluations)/(double)Tmax));
- 
-	      M1=sqrt(pow(FA->objNorm[0]-FB->objNorm[0],2)+pow(FA->objNorm[1]-FB->objNorm[1],2))/sqrt(2);
-              M2= 1 + (int)(((double)(genes)/4) * M1);
-              M1*=100;
-
-	      cl[0] = FireflyArray[j];   // copy the current solution
-      	      cl[1] = FireflyArray[j];   // copy the current solution
-      
-              global_mutation(&cl[0], M1); // global mutation
-              local_mutation(&cl[1], M2); // local mutation
-              
-              evaluate(&cl[0], problem);
-              evaluate(&cl[1], problem);              
-
-              result = compare_min((&cl[0])->obj, (&cl[1])->obj, objectives);
-              if (result == -1) cl[0]=cl[1];
-	      result = compare_min((&cl[0])->obj, (&FireflyArray[j])->obj, objectives);
-              if(result==1){ //FB dominate FR
-                FireflyArray[j]=cl[0];
-                Normalizar_sol(j);
-              }
-           }
-        }       
-      }      
+                    result = comparate_min(&cl[0],&cl[1]);
+                    if (result == 0) 
+                        cl[0]=cl[1];
+                    result = comparate_min(&cl[0],&FireflyArray[j]);
+                    if(result==1){ //FB dominate FR
+                            printf("Se ha producido una mutacion\n" );
+                        FireflyArray[j]=cl[0];
+                        Normalizar_sol(j);
+                    }
+                }
+                //printf("\n\n-------- %d --------\n\n", num_evaluations);
+                    //print_sol(&FireflyArray[j],j,"Energia.energia");
+            }       
+        }      
     }    
-  }  
 }
 
 void Maximos_iniciales(){
@@ -214,106 +206,6 @@ return 0;
 
 }
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// Initalization procedure
-/*
-void init()
-{
-  int i,j;
-  char p;
-  FILE *fdesc; 
-	
-  char name[4];
-  float chi_mean[4];
-  float chi_dev[4];
-  int type;
-	
-  char buffer[160];
-
-  num_evaluations = 0;
-	 
-  if (!strcmp(problem, "CHARMm27"))
-	strcpy(params,"bin/params/charmm27.prm");
-  else if (!strcmp(problem, "amber99"))
-	strcpy(params,"bin/params/amber99.prm");
-  
-
-  // allocate memory for solutions
-  curr   = (sol *)malloc(MAX_POP*sizeof(sol));
-  cl  = (sol *)malloc(MAX_CLONES*sizeof(sol));
-  m   = (sol *)malloc(MAX_POP*sizeof(sol));
-  arc = (sol *)malloc(MAX_ARC*sizeof(sol));
-  app = (sol *)malloc(MAX_ARC*sizeof(sol));
-
-  if((!curr)||(!m)||(!arc))
-    {
-      printf("Out of memory. Aborting.\n");
-      exit(-1);
-    }
-  
-  if(native_ss == 1)
-    {
-      //Secondary structures constraints
-      phi[0][0] = -67;  phi[0][1] = -47;  psi[0][0] = -57;  psi[0][1] = -37; // H
-      phi[1][0] = -130; phi[1][1] = -110; psi[1][0] = 110;  psi[1][1] = 130; // B
-      phi[2][0] = -130; phi[2][1] = -110; psi[2][0] = 110;  psi[2][1] = 130; // E
-      phi[3][0] = -59;  phi[3][1] = -39;  psi[3][0] = -36;  psi[3][1] = -16; // G
-      phi[4][0] = -67;  phi[4][1] = -47;  psi[4][0] = -80;  psi[4][1] = -60; // I
-      phi[5][0] =  -180;phi[5][1] = 180;  psi[5][0] = -180;  psi[5][1] = 180;// T
-      phi[6][0] =  -180;phi[6][1] = 180;  psi[6][0] = -180; psi[6][1] = 180; // S 
-      phi[7][0] =  -180;phi[7][1] = 180;  psi[7][0] = -180; psi[7][1] = 180; // U (undefined)
-    }
-  else
-    {
-      //Supersecondary structures constraints
-      phi[0][0] = -75;  phi[0][1] = -55;  psi[0][0] = -50;  psi[0][1] = -30; // H 
-      phi[1][0] = -130; phi[1][1] = -110; psi[1][0] = 110;  psi[1][1] = 130; // E
-      phi[2][0] = -150; phi[2][1] = -30;  psi[2][0] = -100; psi[2][1] = 50;  // a
-      phi[3][0] = -230; phi[3][1] = -30;  psi[3][0] = 100;  psi[3][1] = 200; // b
-      phi[4][0] =  30;  phi[4][1] = 130;  psi[4][0] = 130;  psi[4][1] = 260; // e
-      phi[5][0] =  30;  phi[5][1] = 150;  psi[5][0] = -60;  psi[5][1] = 90;  // l
-      phi[6][0] =  -160;phi[6][1] = -50;  psi[6][0] = 50;   psi[6][1] = 100; // t
-      phi[7][0] =  -180;phi[7][1] = 180;  psi[7][0] = -180; psi[7][1] = 180; // U (undefined)
-    }
-
-  fdesc = fopen(protein,"r");
-  if(fdesc == NULL)
-  {
-    printf("fopen failed to open %s\n", protein);
-    exit(1);
-  }
-   printf("\n\n\n\n\nArchivo Abierto %s\n\n\n\n ", protein);
-  for (i = 0; i < genes; i++)
-    {
-      fgets(buffer,159,fdesc);
-      sscanf(buffer,"%s %c",curr->chrom[i].name, &p);
-      if(native_ss == 1)
-	curr->chrom[i].predicted = PredictedToNumber_native(p);
-      else  
-	curr->chrom[i].predicted = PredictedToNumber(p);
-      curr->chrom[i].type = NameToType(curr->chrom[i].name);
-      curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
-    }
-  fclose(fdesc);
-  
-  curr->energy = 0.0;
-  curr->to_evaluate = 1;
-
-   
-  // initialise curr by randomly selecting the backbone and sidechain torsion angles 
-  // in the constrained regions.
-  for (j = 0; j < genes; j++)
-    {
-      res* r = &curr->chrom[j];
-      randConstAngles(r);
-    }
-}
-*/
-
 void init_MOFA(int N_Fireflies)
 {
   int i,j;
@@ -337,7 +229,7 @@ void init_MOFA(int N_Fireflies)
 	strcpy(params,"bin/params/amber99.prm");
   
 
-  // allocate memory for solutions
+  // Reserva de memoria de los array y datos usados
 
 
   FireflyArray = (sol*) malloc(N_Fireflies *sizeof(sol));
@@ -356,7 +248,7 @@ void init_MOFA(int N_Fireflies)
 
   if(native_ss == 1)
     {
-      //Secondary structures constraints
+      //Restricciones Estructuras Secundarias
       phi[0][0] = -67;  phi[0][1] = -47;  psi[0][0] = -57;  psi[0][1] = -37; // H
       phi[1][0] = -130; phi[1][1] = -110; psi[1][0] = 110;  psi[1][1] = 130; // B
       phi[2][0] = -130; phi[2][1] = -110; psi[2][0] = 110;  psi[2][1] = 130; // E
@@ -368,7 +260,7 @@ void init_MOFA(int N_Fireflies)
     }
   else
     {
-      //Supersecondary structures constraints
+      //Restricciones Estructuras Supersecundarias
       phi[0][0] = -75;  phi[0][1] = -55;  psi[0][0] = -50;  psi[0][1] = -30; // H 
       phi[1][0] = -130; phi[1][1] = -110; psi[1][0] = 110;  psi[1][1] = 130; // E
       phi[2][0] = -150; phi[2][1] = -30;  psi[2][0] = -100; psi[2][1] = 50;  // a
@@ -378,8 +270,6 @@ void init_MOFA(int N_Fireflies)
       phi[6][0] =  -160;phi[6][1] = -50;  psi[6][0] = 50;   psi[6][1] = 100; // t
       phi[7][0] =  -180;phi[7][1] = 180;  psi[7][0] = -180; psi[7][1] = 180; // U (undefined)
     }
-
-
 
  
     fdesc = fopen(protein,"r");
@@ -405,22 +295,18 @@ void init_MOFA(int N_Fireflies)
     curr->energy = 0.0;
     curr->to_evaluate = 1;
 
-    int k;
-    for( k=0; k < N_Fireflies; k++){ 
-      // initialise curr by randomly selecting the backbone and sidechain torsion angles 
-      // in the constrained regions.
+    // Inicializa FireflyArray[k] seleccionando aleatoriamente los angulos de torsion y de la cadena principal 
+    // en las regiones asociadas.
+    for(int k=0; k < N_Fireflies; k++){ 
       FireflyArray[k]=*curr;
-	
       for (j = 0; j < genes; j++)
       {
         res* r = &(FireflyArray[k].chrom[j]);
         randConstAngles(r);
       }
-      evaluate(&FireflyArray[k], problem); 
-     }
-
-
- 
+      evaluate(&FireflyArray[k], problem);
+      printf("num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+    }
 }
 
 void copySolution(sol* A, sol *B){
@@ -496,13 +382,6 @@ int main(int argc, char *argv[])
    
   sigma = 1.0;
 
-  // directory for simulation results
-  //strcat(dir,"_depth");
-  //strcat(dir,gcvt(depth,20,temp));
-  //strcat(dir,"_arch");
-  //strcat(dir,gcvt(archive,20,temp));
-  //strcat(dir,"_iter");
-  //strcat(dir,gcvt(iterations,20,temp));
   strcat(command,dir);
   system(command);
 
@@ -512,15 +391,25 @@ int main(int argc, char *argv[])
     
   signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  N_fireflies= 100;
-  init_MOFA(N_fireflies);
   double time1=omp_get_wtime();
-  #pragma omp parallel for
+  N_fireflies= 100;
+  printf("\n\n\n Hola desde Antes de Init\n");
+  init_MOFA(N_fireflies);
+  
+  MO_FA_GMJ();
+
+  
   for(int p=0; p < N_fireflies  ; p++  ){
-  	printf("\n\n\n Energia Actual: %f\n",(&FireflyArray[p])->energy);
+    print_sol(&FireflyArray[p],p,"EnergiaFinal.energia");
   } 
   double time2=omp_get_wtime();
-  printf("Tiempo: %f\n", time2-time1);
+  printf(ANSI_COLOR_RED     "Tiempos %f"     ANSI_COLOR_RESET "\n", time2-time1 );
+free (FireflyArray); //All Solutions
+free (curr); // current solution
+free (cl); // clones solutions
+free (m); // mutant solution
+free(arc); // archive of solutions
+free(app);
 
 /*
 
@@ -537,8 +426,6 @@ int main(int argc, char *argv[])
   flag = 1;
 
 */
-
-
 /*
 
   while(flag)
@@ -584,7 +471,7 @@ int main(int argc, char *argv[])
       else{           // cl[0] and cl[1] are nondominated
 	*m = cl[min_cl(cl)];
 	
-  update_grid(&cl[max_cl(cl)]);  //calculate grid location of cl[1] solution and renormalize archive if necessary
+        update_grid(&cl[max_cl(cl)]);  //calculate grid location of cl[1] solution and renormalize archive if necessary
 	archive_soln(&cl[max_cl(cl)]); //update the archive by removing all dominated individuals
       }
       // Immune Phase: End
@@ -630,7 +517,6 @@ int main(int argc, char *argv[])
     }
 
 */
-
 /*
   iteration = i;
   printf("\nThe Archive is now...\n");
@@ -639,5 +525,53 @@ int main(int argc, char *argv[])
 
   printf("\nSaving of the genetic material in the archive...\n");
   print_arc(iteration);
-  printf("Done.\n");*/
+  printf("Done.\n");
+*/
 }
+
+void print_sol(sol* s,int p,int i,const char* file){
+    
+    FILE *fd;
+    char params_file[200];
+
+    strcpy(params_file,dir);
+    strcat(params_file,"/");
+    strcat(params_file,file);
+    fd = fopen(params_file,"aw");
+ 
+    if(fd == NULL)
+    {
+        printf("fopen fallo al abrir %s\n",params_file);
+        exit(-1);
+    }
+    fprintf(fd,"/******************************************\n");
+    fprintf(fd,"Generacion %d  --- Datos de solucion %d\n",i,p );
+    fprintf(fd,"Energia: %f      Bond: %lf      Non_Bond: %lf\n", s->energy,s->obj[0],s->obj[1]);
+    fprintf(fd,"******************************************/\n\n");
+  
+    fclose(fd);
+    
+}
+
+void print_sol(sol* s,int p,const char* file){
+    
+    FILE *fd;
+    char params_file[200];
+
+    strcpy(params_file,dir);
+    strcat(params_file,"/");
+    strcat(params_file,file);
+    fd = fopen(params_file,"aw");
+ 
+    if(fd == NULL)
+    {
+        printf("fopen fallo al abrir %s\n",params_file);
+        exit(-1);
+    }
+    fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
+  
+    fclose(fd);
+    
+}
+
+

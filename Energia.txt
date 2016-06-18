@@ -1,3 +1,4 @@
+g++ -w -c -g -O i-paes.c
 g++ i-paes.o paes_routines.o ran.o auxfunc.o psp_routines.o print_routines.o mutation.o energy.o randomlib.o -lm -fopenmp -o ../i-paes2
 
      ######################################################################
@@ -5964,6 +5965,93 @@ g++ i-paes.o paes_routines.o ran.o auxfunc.o psp_routines.o print_routines.o mut
  Enter Residue  34 :  
  Enter Residue  35 :  
  Cyclize the Polypeptide Chain [N] :  
+
+
+ Hola desde Antes de Init
+num_firefly[0] --> energy: 507718933.974100
+num_firefly[1] --> energy: 38449999999779.085938
+num_firefly[2] --> energy: 1996999999999636.250000
+num_firefly[3] --> energy: 5500999999283.642578
+num_firefly[4] --> energy: 5675978974.382401
+num_firefly[5] --> energy: 209763988.487900
+num_firefly[6] --> energy: 3154999999999367.000000
+num_firefly[7] --> energy: 20309999999307.800781
+num_firefly[8] --> energy: 48319999726.475800
+num_firefly[9] --> energy: 7407999999630.212891
+num_firefly[10] --> energy: 19999999999287.800781
+num_firefly[11] --> energy: 1514788554.347300
+num_firefly[12] --> energy: 19309999424.948402
+num_firefly[13] --> energy: 80979999999303.562500
+num_firefly[14] --> energy: 56639998953.570206
+num_firefly[15] --> energy: 1558999999408.488037
+num_firefly[16] --> energy: 11759999320.426102
+num_firefly[17] --> energy: 317314762.691500
+num_firefly[18] --> energy: 486429338.894100
+num_firefly[19] --> energy: 73979999639.255798
+num_firefly[20] --> energy: 20269999998942.261719
+num_firefly[21] --> energy: 200299999998791.093750
+num_firefly[22] --> energy: 15989999442.845600
+num_firefly[23] --> energy: 17859999293.587601
+num_firefly[24] --> energy: 3502999999531.692383
+num_firefly[25] --> energy: 47059998875.143501
+num_firefly[26] --> energy: 1419999999252.804199
+num_firefly[27] --> energy: 6793886602.249800
+num_firefly[28] --> energy: 2227999999024.236816
+num_firefly[29] --> energy: 61250000000000288.000000
+num_firefly[30] --> energy: 90129999998485.765625
+num_firefly[31] --> energy: 45629999314.026199
+num_firefly[32] --> energy: 97019999999423.812500
+num_firefly[33] --> energy: 2191999999999093.750000
+num_firefly[34] --> energy: 84369999999650.765625
+num_firefly[35] --> energy: 168699999999116.250000
+num_firefly[36] --> energy: 377000000000356.250000
+num_firefly[37] --> energy: 360099999396.124023
+num_firefly[38] --> energy: 190799998998.269318
+num_firefly[39] --> energy: 9392897014.271601
+num_firefly[40] --> energy: 44229999277.278694
+num_firefly[41] --> energy: 18629999422.303001
+num_firefly[42] --> energy: 4081825969.587700
+num_firefly[43] --> energy: 1750999999316.994385
+num_firefly[44] --> energy: 218199999379.928802
+num_firefly[45] --> energy: 8958382028.028599
+num_firefly[46] --> energy: 11169999999103.294922
+num_firefly[47] --> energy: 29099999999999508.000000
+num_firefly[48] --> energy: 4564000000000000000.000000
+num_firefly[49] --> energy: 157399999999855.625000
+num_firefly[50] --> energy: 21249999435.087399
+num_firefly[51] --> energy: 132299999229.952393
+num_firefly[52] --> energy: 736199999999997824.000000
+num_firefly[53] --> energy: 88879999999999616.000000
+num_firefly[54] --> energy: 14399999618.680500
+num_firefly[55] --> energy: 8392538613.951600
+num_firefly[56] --> energy: 119099999999267.656250
+num_firefly[57] --> energy: 1550999999999488.250000
+num_firefly[58] --> energy: 620622029.607800
+num_firefly[59] --> energy: 40379999178.960503
+num_firefly[60] --> energy: 20669999999145.375000
+num_firefly[61] --> energy: 7589999998852.201172
+num_firefly[62] --> energy: 17649999363.612202
+num_firefly[63] --> energy: 719199999999422.000000
+num_firefly[64] --> energy: 368499999441.617371
+num_firefly[65] --> energy: 88649999101.362091
+num_firefly[66] --> energy: 67379999532.428497
+num_firefly[67] --> energy: 31030000000000000000.000000
+num_firefly[68] --> energy: 47309999649.437904
+num_firefly[69] --> energy: 12809999999225.810547
+num_firefly[70] --> energy: 3769999999381.704102
+num_firefly[71] --> energy: 53759999999308.078125
+num_firefly[72] --> energy: 154699998687.838104
+num_firefly[73] --> energy: 410599999334.538879
+num_firefly[74] --> energy: 171099999999068.406250
+num_firefly[75] --> energy: 12739999998701.017578
+num_firefly[76] --> energy: 3203351491.327800
+num_firefly[77] --> energy: 2330999999616.691895
+num_firefly[78] --> energy: 18489999174.499496
+num_firefly[79] --> energy: 367099999032.498230
+num_firefly[80] --> energy: 13929999460.417501
+num_firefly[81] --> energy: 506599999588.355591
+num_firefly[82] --> energy: 24169504.274400
+num_firefly[83] --> energy: 15449999337
      ######################################################################
    ##########################################################################
   ###                                                                      ###
@@ -7099,404 +7187,21 @@ g++ i-paes.o paes_routines.o ran.o auxfunc.o psp_routines.o print_routines.o mut
  Enter Residue  33 :  
  Enter Residue  34 :  
  Enter Residue  35 :  
- Cyclize the Polypeptide Chain [N] :  
-
-
- Energia Actual: 24399999466.265903
-
-
-
- Energia Actual: 4172638590.675300
-
-
-
- Energia Actual: 62989999999999096.000000
-
-
-
- Energia Actual: 69669998959.287903
-
-
-
- Energia Actual: 61739999999091.062500
-
-
-
- Energia Actual: 63199998916.158897
-
-
-
- Energia Actual: 56109999381.967697
-
-
-
- Energia Actual: 56729999921.544701
-
-
-
- Energia Actual: 16769999313.383400
-
-
-
- Energia Actual: 294499999328.630005
-
-
-
- Energia Actual: 15359999333.532999
-
-
-
- Energia Actual: 3968999999185.936523
-
-
-
- Energia Actual: 358599999257.017090
-
-
-
- Energia Actual: 2664492291.864100
-
-
-
- Energia Actual: 1078999999999248.375000
-
-
-
- Energia Actual: 61579999353.811401
-
-
-
- Energia Actual: 536699999338.206909
-
-
-
- Energia Actual: 5332999998901.622070
-
-
-
- Energia Actual: 968000000070.604858
-
-
-
- Energia Actual: 3264354838.193300
-
-
-
- Energia Actual: 2068999999999257.750000
-
-
-
- Energia Actual: 74449999251.034805
-
-
-
- Energia Actual: 756699999092.248901
-
-
-
- Energia Actual: 420799998894.828674
-
-
-
- Energia Actual: 7968999999999307.000000
-
-
-
- Energia Actual: 4264999999032.162109
-
-
-
- Energia Actual: 41699999387.459496
-
-
-
- Energia Actual: 2601999999375.354492
-
-
-
- Energia Actual: 31389999405.916000
-
-
-
- Energia Actual: 2221641666.380500
-
-
-
- Energia Actual: 56309999558.170601
-
-
-
- Energia Actual: 20479999999355.453125
-
-
-
- Energia Actual: 1799999998919.676514
-
-
-
- Energia Actual: 127099999999999408.000000
-
-
-
- Energia Actual: 3574999999999999488.000000
-
-
-
- Energia Actual: 4654511702.584700
-
-
-
- Energia Actual: 410193130.397100
-
-
-
- Energia Actual: 109299999160.524200
-
-
-
- Energia Actual: 2924999999999998976.000000
-
-
-
- Energia Actual: 546699999292.436707
-
-
-
- Energia Actual: 120999999688.978607
-
-
-
- Energia Actual: 2163564098.592900
-
-
-
- Energia Actual: 19939999999999696.000000
-
-
-
- Energia Actual: 4247999999383.061523
-
-
-
- Energia Actual: 23549999320.713600
-
-
-
- Energia Actual: 19209999138.472500
-
-
-
- Energia Actual: 10889999170.251101
-
-
-
- Energia Actual: 3319999999004.534180
-
-
-
- Energia Actual: 289266915.870700
-
-
-
- Energia Actual: 2558999999999436.500000
-
-
-
- Energia Actual: 31279999339.121101
-
-
-
- Energia Actual: 75139999283.154007
-
-
-
- Energia Actual: 33260000000062.714844
-
-
-
- Energia Actual: 15569999428.497400
-
-
-
- Energia Actual: 1530999998781.253174
-
-
-
- Energia Actual: 738499999345.088623
-
-
-
- Energia Actual: 24289999998956.851562
-
-
-
- Energia Actual: 8845357874.078001
-
-
-
- Energia Actual: 4455999999489.170898
-
-
-
- Energia Actual: 572699999918.223877
-
-
-
- Energia Actual: 393499999999552.500000
-
-
-
- Energia Actual: 336299999193.144104
-
-
-
- Energia Actual: 53269999338.599602
-
-
-
- Energia Actual: 13569999999081.888672
-
-
-
- Energia Actual: 391599998770.592407
-
-
-
- Energia Actual: 77059999999372.250000
-
-
-
- Energia Actual: 2070999999261.354980
-
-
-
- Energia Actual: 16099999142.888401
-
-
-
- Energia Actual: 17669999999683.218750
-
-
-
- Energia Actual: 188599999102.901001
-
-
-
- Energia Actual: 42519999309.446404
-
-
-
- Energia Actual: 5044000000025.796875
-
-
-
- Energia Actual: 274099998874.620819
-
-
-
- Energia Actual: 4905546395.928599
-
-
-
- Energia Actual: 17599998967.015598
-
-
-
- Energia Actual: 179499999356.748077
-
-
-
- Energia Actual: 4862160435.529000
-
-
-
- Energia Actual: 457599999999999680.000000
-
-
-
- Energia Actual: 198799998900.300110
-
-
-
- Energia Actual: 179899999547.827087
-
-
-
- Energia Actual: 19329999999677.898438
-
-
-
- Energia Actual: 27579999026.225700
-
-
-
- Energia Actual: 5481999999999637.000000
-
-
-
- Energia Actual: 68119999999533.273438
-
-
-
- Energia Actual: 829299999719.332275
-
-
-
- Energia Actual: 7342500603.151700
-
-
-
- Energia Actual: 25049999999401.984375
-
-
-
- Energia Actual: 42899999999999248.000000
-
-
-
- Energia Actual: 40159999999321.367188
-
-
-
- Energia Actual: 1051999999999428.250000
-
-
-
- Energia Actual: 47159999999221.257812
-
-
-
- Energia Actual: 15939999999999128.000000
-
-
-
- Energia Actual: 171096475.102000
-
-
-
- Energia Actual: 146799999221.949371
-
-
-
- Energia Actual: 1212999999320.953125
-
-
-
- Energia Actual: 3316999999562.652832
-
-
-
- Energia Actual: 1017999999348.830811
-
-
-
- Energia Actual: 4567392466.364700
-
-
-
- Energia Actual: 9028999999550.033203
-
-
-
- Energia Actual: 59429999999283.851562
-Tiempo: 0.000303
+ Cyclize the Polypeptide Chain [N] :  .247200
+num_firefly[84] --> energy: 70999999295.494400
+num_firefly[85] --> energy: 32049999999999516.000000
+num_firefly[86] --> energy: 211574464.949900
+num_firefly[87] --> energy: 620299999999765.750000
+num_firefly[88] --> energy: 1279999999999713.250000
+num_firefly[89] --> energy: 3055834507.349500
+num_firefly[90] --> energy: 4522999999999998976.000000
+num_firefly[91] --> energy: 4890671946.269500
+num_firefly[92] --> energy: 1359999999556.345703
+num_firefly[93] --> energy: 94269999998862.890625
+num_firefly[94] --> energy: 47089999234.915199
+num_firefly[95] --> energy: 9986999998879.666016
+num_firefly[96] --> energy: 975399999193.447876
+num_firefly[97] --> energy: 4660999999130.693359
+num_firefly[98] --> energy: 8244999999577.727539
+num_firefly[99] --> energy: 6551999999759.684570
+[31mTiempos 101.279989[0m
