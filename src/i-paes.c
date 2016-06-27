@@ -120,21 +120,12 @@ printf("Hola desde MO_FA\n");
   
     int flag=0;
     int num_evaluations=0;
-    //#pragma omp parallel for collapse(2) shared(num_evaluations, flag) private(cl, M1,M2,result)
     for(int j=0; j< N_fireflies && num_evaluations <= 1000 && flag==0; j++){
         for(int k=0; k < N_fireflies && num_evaluations <= 1000 && flag==0; k++){
-            if(j!=k){
-		//#pragma omp critical
-		{
-		if (kbhit())
-			if(getchar()== 27){
-				flag=1;	
-				printf("Se ha detenido el programa con un total de %d evaluaciones", num_evaluations);			
-			}		
-		}	
+            if(j!=k){		
 
                 result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
-                if(result==1){ // K Domina J ----------> Epsilon Dominating
+                if(result==0){ // K Domina J ----------> Epsilon Dominating
                     //M1 = Distancia Euclidea de las dos soluciones dividido entre la Raiz de 2
                     M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
                     //M2 = Modificador de M1 para realizarlo un 25 % de las veces. Se le suma 1 para hacerlo al menos 1 vez
@@ -150,8 +141,6 @@ printf("Hola desde MO_FA\n");
                     evaluate(&cl[0], problem);
                     evaluate(&cl[1], problem);              
 
-
-	           // #pragma omp atomic
 	            num_evaluations+=2;
 
                     result = comparate_min(&cl[0],&cl[1]);
@@ -235,8 +224,6 @@ int init_MOFA(int N_Fireflies)
   float chi_mean[4];
   float chi_dev[4];
   int type;
-	
-
 
   char buffer[160];
 
@@ -308,14 +295,6 @@ int init_MOFA(int N_Fireflies)
             curr->chrom[i].predicted = PredictedToNumber(p);
         curr->chrom[i].type = NameToType(curr->chrom[i].name);
         curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
-    
-      
-        if (kbhit())
-            if(getchar()== 27){
-                flag=1;	
-                printf("Se ha detenido la inicializacion\n");			
-            }		
-      
     }
     fclose(fdesc);
   
@@ -325,17 +304,17 @@ int init_MOFA(int N_Fireflies)
     if(flag!=1){
         // Inicializa FireflyArray[k] seleccionando aleatoriamente los angulos de torsion y de la cadena principal 
         // en las regiones asociadas.
-            //#pragma omp parallel for 
+
         for(int k=0; k < N_Fireflies; k++){ 
             FireflyArray[k]=*curr;
-            // printf("num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+             printf(" %d\n",k);
             for (int j = 0; j < genes; j++)
             {
                 res* r = &(FireflyArray[k].chrom[j]);
                 randConstAngles(r);
             }
             evaluate(&FireflyArray[k], problem);
-            printf("------>>>>num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+          //  printf("------>>>>num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
             }
     }
 printf("Fin de Init\n");
@@ -419,12 +398,12 @@ int main(int argc, char *argv[])
 
     signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  double time1=omp_get_wtime();
-  N_fireflies= 100;
+  //double time1=omp_get_wtime();
+  N_fireflies= 20;
   printf("\n\n\n Hola desde Antes de Init\n");
   int flag=init_MOFA(N_fireflies);
-  if(flag==0)
-    MO_FA_GMJ();
+//  if(flag==0)
+//    MO_FA_GMJ();
   
   free(curr);
   free(FireflyArray);
