@@ -276,7 +276,12 @@ void backup(int signo)
       //printf("\ndone\n");
     }
   }
-  
-  printf("Done.\n");
-  exit(-1);
+    free(curr);
+    free(FireflyArray);
+    free(cl);
+    free(m);
+    free(arc); 
+    free(app); 
+    printf("Done.\n");
+    exit(-1);
 }

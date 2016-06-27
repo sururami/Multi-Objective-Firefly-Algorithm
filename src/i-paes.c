@@ -107,23 +107,32 @@ MultiObjective Firefly Algorithm
 
 void MO_FA_GMJ()
 {
+printf("Hola desde MO_FA\n");
+printf("Hola desde MO_FA\n");
+printf("Hola desde MO_FA\n");
+printf("Hola desde MO_FA\n");
+printf("Hola desde MO_FA\n");
+printf("Hola desde MO_FA\n");
     int result;
   
-    char M2;
+    int M2;
     double M1;
   
-    int generations=50;
-  
-    sol *FR;
-    FR   = (sol *)malloc(sizeof(sol));
-    int flag=1;
+    int flag=0;
     int num_evaluations=0;
-    #pragma omp parallel for collapse(2) shared(flag, cl M1, M2, num_evaluations) 
-    for(int j=0; j< N_fireflies && num_evaluations >= 1000; j++){
-        for(int k=0; k < N_fireflies && num_evaluations >= 1000; k++){
+    //#pragma omp parallel for collapse(2) shared(num_evaluations, flag) private(cl, M1,M2,result)
+    for(int j=0; j< N_fireflies && num_evaluations <= 1000 && flag==0; j++){
+        for(int k=0; k < N_fireflies && num_evaluations <= 1000 && flag==0; k++){
             if(j!=k){
-		printf("Holita :%d\n",num_evaluations);
-                num_evaluations++;
+		//#pragma omp critical
+		{
+		if (kbhit())
+			if(getchar()== 27){
+				flag=1;	
+				printf("Se ha detenido el programa con un total de %d evaluaciones", num_evaluations);			
+			}		
+		}	
+
                 result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
                 if(result==1){ // K Domina J ----------> Epsilon Dominating
                     //M1 = Distancia Euclidea de las dos soluciones dividido entre la Raiz de 2
@@ -141,6 +150,10 @@ void MO_FA_GMJ()
                     evaluate(&cl[0], problem);
                     evaluate(&cl[1], problem);              
 
+
+	           // #pragma omp atomic
+	            num_evaluations+=2;
+
                     result = comparate_min(&cl[0],&cl[1]);
                     if (result == 0) 
                         cl[0]=cl[1];
@@ -152,7 +165,7 @@ void MO_FA_GMJ()
                     }
                 }
                 //printf("\n\n-------- %d --------\n\n", num_evaluations);
-                    //print_sol(&FireflyArray[j],j,"Energia.energia");
+                print_sol(&FireflyArray[j],j,"Energia.energia");
             }       
         }      
     }    
@@ -196,17 +209,23 @@ void Normalizar_sol(int i){
 }
 
 int comparate_min(sol* s1, sol* s2){
-/*Devuelve 1 si s1 domina a s2
+/*Devuelve 0 si s1 domina a s2
+  Devuelve 1 si s2 domina a s1
+  Devuelve -1 en caso de igualdad
 */
 
 if( (s1->obj[0] <= s2->obj[0]) && (s1->obj[1] <= s2->obj[1]) && ((s1->obj[0] < s2->obj[0]) || (s1->obj[1] < s2->obj[1] ) ) )
+	return 0;
+
+if( (s2->obj[0] <= s1->obj[0]) && (s2->obj[1] <= s1->obj[1]) && ((s2->obj[0] < s1->obj[0]) || (s2->obj[1] < s1->obj[1] ) ) )
 	return 1;
-return 0;
+
+return -1;
 
 
 }
 
-void init_MOFA(int N_Fireflies)
+int init_MOFA(int N_Fireflies)
 {
   int i,j;
   char p;
@@ -278,35 +297,49 @@ void init_MOFA(int N_Fireflies)
       printf("fopen filed to open %s\n", protein);
       exit(1);
     }
- 
-    for (i = 0; i < genes; i++)
+ int flag=0;
+    for (i = 0; i < genes && flag == 0; i++)
     {
-      fgets(buffer,159,fdesc);
-      sscanf(buffer,"%s %c",curr->chrom[i].name, &p);
-      if(native_ss == 1)
-	curr->chrom[i].predicted = PredictedToNumber_native(p);
-      else  
-	curr->chrom[i].predicted = PredictedToNumber(p);
-      curr->chrom[i].type = NameToType(curr->chrom[i].name);
-      curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
+        fgets(buffer,159,fdesc);
+        sscanf(buffer,"%s %c",curr->chrom[i].name, &p);
+        if(native_ss == 1)
+            curr->chrom[i].predicted = PredictedToNumber_native(p);
+        else  
+            curr->chrom[i].predicted = PredictedToNumber(p);
+        curr->chrom[i].type = NameToType(curr->chrom[i].name);
+        curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
+    
+      
+        if (kbhit())
+            if(getchar()== 27){
+                flag=1;	
+                printf("Se ha detenido la inicializacion\n");			
+            }		
+      
     }
     fclose(fdesc);
   
+    
     curr->energy = 0.0;
     curr->to_evaluate = 1;
-
-    // Inicializa FireflyArray[k] seleccionando aleatoriamente los angulos de torsion y de la cadena principal 
-    // en las regiones asociadas.
-    for(int k=0; k < N_Fireflies; k++){ 
-      FireflyArray[k]=*curr;
-      for (j = 0; j < genes; j++)
-      {
-        res* r = &(FireflyArray[k].chrom[j]);
-        randConstAngles(r);
-      }
-      evaluate(&FireflyArray[k], problem);
-      printf("num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+    if(flag!=1){
+        // Inicializa FireflyArray[k] seleccionando aleatoriamente los angulos de torsion y de la cadena principal 
+        // en las regiones asociadas.
+            //#pragma omp parallel for 
+        for(int k=0; k < N_Fireflies; k++){ 
+            FireflyArray[k]=*curr;
+            // printf("num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+            for (int j = 0; j < genes; j++)
+            {
+                res* r = &(FireflyArray[k].chrom[j]);
+                randConstAngles(r);
+            }
+            evaluate(&FireflyArray[k], problem);
+            printf("------>>>>num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
+            }
     }
+printf("Fin de Init\n");
+return flag;
 }
 
 void copySolution(sol* A, sol *B){
@@ -357,8 +390,6 @@ int main(int argc, char *argv[])
       exit(-1);
     }
 
-  //get command line parameters
-
   sprintf(problem, "%s", argv[1]);
   depth = atoi(argv[2]);
   objectives = atoi(argv[3]);
@@ -373,10 +404,9 @@ int main(int argc, char *argv[])
 
   std::vector<int> first;
 
-  srandom(time(NULL)); // seed for function random() 
-  RandSeed=random();   //   "    " "  " ran()
+  srandom(time(NULL)); // seed para la funcion ramdom() 
+  RandSeed=random();   // seed para la funcion ran()
   srand(r=random());
-  //printf("Seed = %d\n",r);
 
   RandomInitialise(Randint(0,31328),Randint(0,30081));
    
@@ -387,146 +417,22 @@ int main(int argc, char *argv[])
 
   print_params("parameters.dat");
 
-  // begin (1+1)-PAES
-    
-  signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
+    signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
   double time1=omp_get_wtime();
   N_fireflies= 100;
   printf("\n\n\n Hola desde Antes de Init\n");
-  init_MOFA(N_fireflies);
+  int flag=init_MOFA(N_fireflies);
+  if(flag==0)
+    MO_FA_GMJ();
   
-  MO_FA_GMJ();
-
+  free(curr);
+  free(FireflyArray);
+  free(cl);
+  free(m);
+  free(arc); 
+  free(app); 
   
-  for(int p=0; p < N_fireflies  ; p++  ){
-    print_sol(&FireflyArray[p],p,"EnergiaFinal.energia");
-  } 
-  double time2=omp_get_wtime();
-  printf(ANSI_COLOR_RED     "Tiempos %f"     ANSI_COLOR_RESET "\n", time2-time1 );
-free (FireflyArray); //All Solutions
-free (curr); // current solution
-free (cl); // clones solutions
-free (m); // mutant solution
-free(arc); // archive of solutions
-free(app);
-
-/*
-
-  evaluate(curr, problem);  // Fitness function evaluation
-
-  //  print_eval(c);      // Uncomment to check objective values generated
-
-  add_to_archive(curr);
-
-  best_energy_found = curr->energy;
-
-  // begin main loop
-  i=0; //iterations counter
-  flag = 1;
-
-*/
-/*
-
-  while(flag)
-    {
-      if (i%100==0)  // just print out the number of iterations done every N
-	printf("Iterations: %d/%d\tFFE: %d\n", i, iterations, num_evaluations);
-
-      //if (i%1000==0) print_arc(i); // Uncomment for snapshot data saving every N iterations
-
-      if(curr->energy < best_energy_found) best_energy_found = curr->energy;
-
-      print_statistics("archive_statistics.dat"); // Uncomment for data saving of archive statistics
-      print_curr_sol("current_solution_statistics.dat"); // Uncomment for data saving of current solution statistics
-      
-      // Immune Phase: Start 
-
-      cl[0] = *curr;   // copy the current solution
-      cl[1] = *curr;   // copy the current solution
-      
-      //Mutation
-
-      M1 = exp((-1)*((double)(2.0*num_evaluations)/(double)Tmax));
-      M2 = 1 + (int)(((double)genes/(double)4) * exp(-(double)(2.0*num_evaluations)/(double)Tmax));
-
-      global_mutation(&cl[0], M1); // global mutation
-      local_mutation(&cl[1], M2); // local mutation
-      
-      //Fitness evaluation
-
-      evaluate(&cl[0], problem); //fitness evaluation for clone cl[0]
-      evaluate(&cl[1], problem); //fitness evaluation for clone cl[1]
-
-      //Selection
-      if (minmax==0)
-	result = compare_min((&cl[0])->obj, (&cl[1])->obj, objectives);
-      else
-	result = compare_max((&cl[0])->obj, (&cl[1])->obj, objectives);
-
-      if (result==1)  // if cl[0] dominates cl[1]
-	*m = cl[0];   // replace m with cl[0]
-      else if (result==-1)  // if cl[1] dominates cl[0]
-	*m = cl[1];         // replace m with cl[0]
-      else{           // cl[0] and cl[1] are nondominated
-	*m = cl[min_cl(cl)];
-	
-        update_grid(&cl[max_cl(cl)]);  //calculate grid location of cl[1] solution and renormalize archive if necessary
-	archive_soln(&cl[max_cl(cl)]); //update the archive by removing all dominated individuals
-      }
-      // Immune Phase: End
-
-      //MINIMIZE MAXIMIZE
-      if (minmax==0)
-	result = compare_min(curr->obj, m->obj, objectives);
-      else
-	result = compare_max(curr->obj, m->obj, objectives);
-
-      // printf("RESULT = %d\n", result);
-      // printf("arclength = %d\n", arclength);
-
-      if (result != 1)  // if mutant is not dominated by current (else discard it)
-	{
-	  if (result ==-1)  // if mutant dominates current
-	    {
-	      //printf("m dominates c\n");
-	      update_grid(m);           //calculate grid location of mutant solution and renormalize archive if necessary
-		archive_soln(m);          //update the archive by removing all dominated individuals
-
-	      *curr = *m;                    // replace c with m
-	    }
-	  else if(result == 0)  // if mutant and current are nondominated wrt each other
-	  {
-	      result = compare_to_archive(m);
-	      if (result != -1)  // if mutant is not dominated by archive (else discard it)
-		    {
-          update_grid(m);
-          archive_soln(m);
-          
-          if((grid_pop[m->grid_loc] <= grid_pop[curr->grid_loc])||(result==1)) // if mutant dominates the archive or
-          {                                                                     // is in less crowded grid loc than c
-              *curr = *m; // then replace c with m
-          }
-        }
-	    }
-	}
-      i++;
-      //Stop after Tmax evaluations or fixed number of iteration
-      if( (num_evaluations >= Tmax) || (i>iterations) ) flag=0;
-
-    }
-
-*/
-/*
-  iteration = i;
-  printf("\nThe Archive is now...\n");
-  for (i = 0; i < arclength; i++)
-    print_eval(&arc[i]);
-
-  printf("\nSaving of the genetic material in the archive...\n");
-  print_arc(iteration);
-  printf("Done.\n");
-*/
 }
 
 void print_sol(sol* s,int p,int i,const char* file){
@@ -570,8 +476,34 @@ void print_sol(sol* s,int p,const char* file){
     }
     fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
   
-    fclose(fd);
-    
+    fclose(fd);   
+}
+
+int kbhit()
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+ 
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+  ch = getchar();
+ 
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+ 
+  return 0;
 }
 
 

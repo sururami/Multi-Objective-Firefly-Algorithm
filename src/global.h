@@ -12,6 +12,9 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <omp.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -70,7 +73,7 @@ typedef struct solution
 }sol;
 
 extern int RandSeed;	//seme per il generatore di numeri casuali ran()
-
+extern sol *FireflyArray;
 extern sol *curr; // current solution
 extern sol *cl; // clones solutions
 extern sol *m; // mutant solution
@@ -120,7 +123,7 @@ double sidechain_upper_limit(char *res,int chi);
 void print_params(const char *file);
 
 
-void init_MOFA(int n);
+int init_MOFA(int n);
 void MO_FA_GMJ();
 void copySolution(sol* A,sol* B);
 void Normalizar_sol(int i);
@@ -131,6 +134,7 @@ void print_sol(sol* s,int p,int i,const char* file);
 void print_sol(sol* s,int p,const char* file);
 void inicializacion_MOABC();
 void CopyStruct(sol *dest, sol *src);
+int kbhit();
 
 double ran();
 
