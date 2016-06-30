@@ -94,7 +94,7 @@ void MO_FA_GMJ()
             if(j!=k){
                 result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
                 if(result==0){ // K Domina J ----------> Epsilon Dominating
-                    printf("Existen dos luciernagas distintas \n" );
+                    printf("Existen dos luciernagas distintas %d y %d \n", j,k );
 
                     //M1 = Distancia Euclídea de las dos soluciones dividido entre la Raiz de 2
                     M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
@@ -302,8 +302,12 @@ int init_MOFA(int N_Fireflies)
                 randConstAngles(r);
             }
             evaluate(&FireflyArray[k], problem);
+            Normalizar_sol(k);
           //  printf("------>>>>num_firefly[%d] --> energy: %f\n",k, FireflyArray[k].energy);
             }
+            
+    Normalizar(0);
+    Normalizar(1);
     }
 printf("Fin de Init\n");
 return flag;
@@ -336,6 +340,53 @@ void copySolution(sol* A, sol *B)
     }
     
 }
+
+
+void print_sol(sol* s,int p,int i,const char* file)
+{    
+    FILE *fd;
+    char params_file[200];
+
+    
+    strcpy(params_file,dir);
+    strcat(params_file,"/");
+    strcat(params_file,file);
+    fd = fopen(params_file,"aw");
+ 
+    if(fd == NULL)
+    {
+        printf("fopen fallo al abrir %s\n",params_file);
+        exit(-1);
+    }
+    fprintf(fd,"/******************************************\n");
+    fprintf(fd,"Generacion %d  --- Datos de solucion %d\n",i,p );
+    fprintf(fd,"Energia: %f      Bond: %lf      Non_Bond: %lf\n", s->energy,s->obj[0],s->obj[1]);
+    fprintf(fd,"******************************************/\n\n");
+  
+    fclose(fd);
+    
+}
+
+void print_sol(sol* s,int p,const char* file){
+    
+    FILE *fd;
+    char params_file[200];
+
+    strcpy(params_file,dir);
+    strcat(params_file,"/");
+    strcat(params_file,file);
+    fd = fopen(params_file,"aw");
+ 
+    if(fd == NULL)
+    {
+        printf("fopen fallo al abrir %s\n",params_file);
+        exit(-1);
+    }
+    fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
+  
+    fclose(fd);   
+}
+
 
 
 int main(int argc, char *argv[])
@@ -387,13 +438,14 @@ int main(int argc, char *argv[])
 
     signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  //double time1=omp_get_wtime();
   N_fireflies= 20;
   printf("\n\n\n Hola desde Antes de Init\n");
   int flag=init_MOFA(N_fireflies);
+  
+  printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
+  
   if(flag==0)
     MO_FA_GMJ();
-  printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
   
   free(curr);
   free(FireflyArray);
@@ -403,50 +455,3 @@ int main(int argc, char *argv[])
   free(app); 
   
 }
-
-void print_sol(sol* s,int p,int i,const char* file)
-{    
-    FILE *fd;
-    char params_file[200];
-
-    
-    strcpy(params_file,dir);
-    strcat(params_file,"/");
-    strcat(params_file,file);
-    fd = fopen(params_file,"aw");
- 
-    if(fd == NULL)
-    {
-        printf("fopen fallo al abrir %s\n",params_file);
-        exit(-1);
-    }
-    fprintf(fd,"/******************************************\n");
-    fprintf(fd,"Generacion %d  --- Datos de solucion %d\n",i,p );
-    fprintf(fd,"Energia: %f      Bond: %lf      Non_Bond: %lf\n", s->energy,s->obj[0],s->obj[1]);
-    fprintf(fd,"******************************************/\n\n");
-  
-    fclose(fd);
-    
-}
-
-void print_sol(sol* s,int p,const char* file){
-    
-    FILE *fd;
-    char params_file[200];
-
-    strcpy(params_file,dir);
-    strcat(params_file,"/");
-    strcat(params_file,file);
-    fd = fopen(params_file,"aw");
- 
-    if(fd == NULL)
-    {
-        printf("fopen fallo al abrir %s\n",params_file);
-        exit(-1);
-    }
-    fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
-  
-    fclose(fd);   
-}
-
-

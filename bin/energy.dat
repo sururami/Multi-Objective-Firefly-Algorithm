@@ -13,15 +13,15 @@
      ######################################################################
 
 
- Total Potential Energy :         4131973254.5109 Kcal/mole
+ Total Potential Energy :              0.3461D+13 Kcal/mole
 
  Energy Component Breakdown :           Kcal/mole      Interactions
 
- Bond Stretching                          54.6094            574
- Angle Bending                           146.0500           1025
+ Bond Stretching                          54.6090            574
+ Angle Bending                            85.4185           1025
  Urey-Bradley                             10.6384            478
  Improper Dihedral                         6.2694            127
- Torsional Angle                         234.2732           1499
- Van der Waals                    4131973788.6079         160566
- Charge-Charge                          -985.9375         158335
+ Torsional Angle                         222.3064           1499
+ Van der Waals                         0.3461D+13         160566
+ Charge-Charge                          -924.2742         158335
                      -998.6345         158335
