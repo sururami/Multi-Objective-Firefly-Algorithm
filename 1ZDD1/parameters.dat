@@ -3,7 +3,7 @@
    of PSP instance 'instances/1ZDD.seq'
 ******************************************/
 
-Energy     = CHARMm27 # Energy function
+Energy     = CHARMm22 # Energy function
 depth      = 4 # number of recursive subdivisions of the objective space
 objectives = 2 # number of objectives to the problem
 residues   = 34 # number of residues in the protein

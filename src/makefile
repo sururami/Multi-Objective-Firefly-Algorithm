@@ -7,21 +7,21 @@
 #	set CC to your C compiler
 
 CC   = g++
-FLAG  =  -w -c -g -O
-LFLAG = -lm -fopenmp
+FLAG  = -w -c -g -O
+LFLAG = -lm
 
-OBJS  = i-paes.o paes_routines.o ran.o auxfunc.o psp_routines.o \
+OBJS  = Mo_Fa_main.o paes_routines.o ran.o auxfunc.o psp_routines.o \
 	print_routines.o mutation.o energy.o randomlib.o
 
-i-paes: i-paes.o paes_routines.o ran.o auxfunc.o psp_routines.o \
+Mo_Fa_main: Mo_Fa_main.o paes_routines.o ran.o auxfunc.o psp_routines.o \
 	print_routines.o mutation.o energy.o randomlib.o
 
-i-paes: $(OBJS)
-	$(CC) $(OBJS) $(LFLAG) -o ../i-paes2
+Mo_Fa_main: $(OBJS)
+	$(CC) $(OBJS) $(LFLAG) -o ../Mo_Fa_main
 	
-i-paes.o: global.h i-paes.c 
+Mo_Fa_main.o: global.h Mo_Fa_main.c 
 
-	$(CC) $(FLAG) i-paes.c
+	$(CC) $(FLAG) Mo_Fa_main.c
 	
 paes_routines.o: global.h paes_routines.c
 
@@ -56,4 +56,4 @@ randomlib.o: random/randomlib.c
 	$(CC) $(FLAG) random/randomlib.c
 	
 clean:
-	rm *.o ../i-paes2
+	rm *.o ../Mo_Fa_main

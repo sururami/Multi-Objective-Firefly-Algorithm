@@ -1,45 +1,22 @@
-// I-PAES skeleton program code for the Protein Structure Prediction problem (PSP)
+// MO_FA_GMJ skeleton program code for the Protein Structure Prediction problem (PSP)
 /*
-  Copyright (C) 2005  Vincenzo Cutello, Giuseppe Narzisi and Giuseppe Nicosia.
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-   The GNU General Public License is available at:
-      http://www.gnu.org/copyleft/gpl.html 
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+  
 */
 //
-// I-PAES is described in the paper:
+// MO_FA_GMJ is described in the paper:
 //
 //    Cutello V., Narzisi G. , Nicosia G.:
 //    A Multi-Objective Evolutionary Approach to the Protein Structure Prediction Problem.
 //    Journal of the Royal Society Interface, Royal Society Publications London.
-//
-// Please contact the authors if you have any comments, suggestions or questions
-// about this file or the I-PAES algorithm.
-// We are at:
-//             {vctl,narzisi,nicosia}@dmi.unict.it
-//
+
 /*********************************************************************************************************
  * To run :                                                                                              *
- *  ./i-paes [Energy] [depth] [objectives] [residues] [archive] [iterations] [Tmax] [protein file]       *
+ *  ./Mo_Fa_Main [Energy] [depth] [objectives] [residues] [archive] [iterations] [Tmax] [protein file]       *
  *           [dir] [SS]                                                                                  *
  *                                                                                                       *
  * where all parameters MUST be specified correctly (none are optional) following the instructions below:*
  *                                                                                                       *
- * [Energy] - at present there is only one Energy function included with this code: CHARMM (v. 27)       *
+ * [Energy] - at present there is only one Energy function included with this code: CHARMM (v. 22)       *
  * [depth] - this is the number of recursive subdivisions of the objective space carried out in order to *
  *           divide the objective space into a grid for the purposes of diversity maintenance. Values of *
  *           between 3 and 6 are useful.                                                                 *
@@ -55,7 +32,7 @@
  * [SS] - Secondary or Supersecondary Structure Constraints (1=secondary, 0=supersecondary)              *
  *                                                                                                       *
  * Example of a valid command lines for 1ZDD protein:                                                    *
- * ./i-paes CHARMm27 4 2 34 1000 250000 250000 0 instances/1ZDD.seq 1ZDD 1                                 *
+ * ./Mo_Fa_Main CHARMm22 4 2 34 1000 250000 250000 0 instances/1ZDD.seq 1ZDD 1                                 *
  *                                                                                                       *
  ********************************************************************************************************/
 
@@ -107,60 +84,73 @@ MultiObjective Firefly Algorithm
 
 void MO_FA_GMJ()
 {
-printf("Hola desde MO_FA\n");
-printf("Hola desde MO_FA\n");
-printf("Hola desde MO_FA\n");
-printf("Hola desde MO_FA\n");
-printf("Hola desde MO_FA\n");
-printf("Hola desde MO_FA\n");
     int result;
-  
     int M2;
     double M1;
-  
     int flag=0;
     int num_evaluations=0;
-    for(int j=0; j< N_fireflies && num_evaluations <= 1000 && flag==0; j++){
-        for(int k=0; k < N_fireflies && num_evaluations <= 1000 && flag==0; k++){
-            if(j!=k){		
-
+    for(int j=0; j< N_fireflies && num_evaluations <= 100; j++){
+        for(int k=0; k < N_fireflies && num_evaluations <= 100; k++){
+            if(j!=k){
                 result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
                 if(result==0){ // K Domina J ----------> Epsilon Dominating
-                    //M1 = Distancia Euclidea de las dos soluciones dividido entre la Raiz de 2
+                    printf("Existen dos luciernagas distintas \n" );
+
+                    //M1 = Distancia Euclídea de las dos soluciones dividido entre la Raiz de 2
                     M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
                     //M2 = Modificador de M1 para realizarlo un 25 % de las veces. Se le suma 1 para hacerlo al menos 1 vez
                     M2= 1 + (int)(((double)(genes)/4) * M1);
                     M1*=100;
+                    printf("Los parametros de mutacion estan activos \n" );
 
                     cl[0] = FireflyArray[j];   // Copia la Solucion en el primer Clon
                     cl[1] = FireflyArray[j];   // Copia la Solucion en el segundo Clon
     
+                    printf("cl[0] y cl[1] son iguales a la luciernaga j \n" );
+
+                    printf("Valor de M1: %f \n", M1 );
                     global_mutation(&cl[0], M1); // Mutacion Global sobre el primer Clon
+                    printf("Valor de M2: %d \n", M2 );
                     local_mutation(&cl[1], M2);  // Mutacion Local sobre el segundo Clon
-            
+                    printf("cl[1] ya esta mutada \n" );
+
+                    
+                    printf("La luciernaga clon 0 y la clon 1 son distintas \n" );
+
+                    
                     evaluate(&cl[0], problem);
                     evaluate(&cl[1], problem);              
 
+                    
+                    printf("Se han evaluado ambos clones \n" );
+
+                    
 	            num_evaluations+=2;
 
+                    printf("Se han realizado %d evaluaciones \n", num_evaluations );
                     result = comparate_min(&cl[0],&cl[1]);
-                    if (result == 0) 
+                    if (result == 0){ 
+                        printf("La opcion 0 es mejor que la 1, cambiando \n" );
                         cl[0]=cl[1];
+                    }
                     result = comparate_min(&cl[0],&FireflyArray[j]);
                     if(result==1){ //FB dominate FR
-                            printf("Se ha producido una mutacion\n" );
+                        printf("Se ha producido una mutacion\n" );
                         FireflyArray[j]=cl[0];
+                        printf("El clon ha sustituido a la original, Normalizando solucion \n" );
                         Normalizar_sol(j);
+                        printf("Solucion Normalizada \n" );
                     }
                 }
-                //printf("\n\n-------- %d --------\n\n", num_evaluations);
-                print_sol(&FireflyArray[j],j,"Energia.energia");
+                printf("Pasando a Nuevo dato, iteracion nº %d \n", j*k );
+                //print_sol(&FireflyArray[j],j,"Energia.energia");
             }       
         }      
     }    
 }
 
-void Maximos_iniciales(){
+void Maximos_iniciales()
+{
 
   double a=FireflyArray[0].obj[0];
 
@@ -174,7 +164,8 @@ void Maximos_iniciales(){
 }
 
 
-void Normalizar(int objetivo){
+void Normalizar(int objetivo)
+{
 
   for (int i=0; i < N_fireflies; i++){
    FireflyArray[i].objNorm[objetivo]=(-1*(FireflyArray[i]).obj[objetivo])/max_obj1;
@@ -183,7 +174,8 @@ void Normalizar(int objetivo){
 }
 
 
-void Normalizar_sol(int i){
+void Normalizar_sol(int i)
+{
 
    if (fabs(FireflyArray[i].obj[0]) > max_obj1) { 
       max_obj1=fabs(FireflyArray[i].obj[0]);
@@ -197,7 +189,8 @@ void Normalizar_sol(int i){
    else FireflyArray[i].objNorm[1]=(-1*FireflyArray[i].obj[1])/max_obj1;
 }
 
-int comparate_min(sol* s1, sol* s2){
+int comparate_min(sol* s1, sol* s2)
+{
 /*Devuelve 0 si s1 domina a s2
   Devuelve 1 si s2 domina a s1
   Devuelve -1 en caso de igualdad
@@ -208,10 +201,7 @@ if( (s1->obj[0] <= s2->obj[0]) && (s1->obj[1] <= s2->obj[1]) && ((s1->obj[0] < s
 
 if( (s2->obj[0] <= s1->obj[0]) && (s2->obj[1] <= s1->obj[1]) && ((s2->obj[0] < s1->obj[0]) || (s2->obj[1] < s1->obj[1] ) ) )
 	return 1;
-
 return -1;
-
-
 }
 
 int init_MOFA(int N_Fireflies)
@@ -229,10 +219,8 @@ int init_MOFA(int N_Fireflies)
 
   num_evaluations = 0;
 	 
-  if (!strcmp(problem, "CHARMm27"))
-	strcpy(params,"bin/params/charmm27.prm");
-  else if (!strcmp(problem, "amber99"))
-	strcpy(params,"bin/params/amber99.prm");
+  if (!strcmp(problem, "CHARMm22"))
+	strcpy(params,"bin/params/charmm22.prm");
   
 
   // Reserva de memoria de los array y datos usados
@@ -321,7 +309,8 @@ printf("Fin de Init\n");
 return flag;
 }
 
-void copySolution(sol* A, sol *B){
+void copySolution(sol* A, sol *B)
+{
 
     int i,j,k;
     for(i=0; i < genes; i++){
@@ -402,8 +391,9 @@ int main(int argc, char *argv[])
   N_fireflies= 20;
   printf("\n\n\n Hola desde Antes de Init\n");
   int flag=init_MOFA(N_fireflies);
-//  if(flag==0)
-//    MO_FA_GMJ();
+  if(flag==0)
+    MO_FA_GMJ();
+  printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
   
   free(curr);
   free(FireflyArray);
@@ -414,11 +404,12 @@ int main(int argc, char *argv[])
   
 }
 
-void print_sol(sol* s,int p,int i,const char* file){
-    
+void print_sol(sol* s,int p,int i,const char* file)
+{    
     FILE *fd;
     char params_file[200];
 
+    
     strcpy(params_file,dir);
     strcat(params_file,"/");
     strcat(params_file,file);
@@ -456,33 +447,6 @@ void print_sol(sol* s,int p,const char* file){
     fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
   
     fclose(fd);   
-}
-
-int kbhit()
-{
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
- 
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
- 
-  ch = getchar();
- 
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
- 
-  if(ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
- 
-  return 0;
 }
 
 

@@ -4,9 +4,9 @@ void evaluate(sol *s, char *problem)
 {
   if(s->to_evaluate == 1)
     {
-      if (!strcmp(problem, "CHARMm27"))
+      if (!strcmp(problem, "CHARMm22"))
 	{
-	  CHARMm27(s);
+	  CHARMm22(s);
 	  num_evaluations++;
 	}
       else

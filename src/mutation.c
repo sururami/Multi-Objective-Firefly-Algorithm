@@ -9,6 +9,7 @@ void local_mutation(sol *s, int n_m)
 
   for(k=0;k<n_m;k++)
   {
+    //printf("Iteracion de Local_mutation: %d \n", k);
     i = RandomInt(0,genes-1);
     n = RandomInt(0,s->chrom[i].num_angles-1);
     

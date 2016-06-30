@@ -1,8 +1,8 @@
 #include "global.h"
 
 
-//CHARMM (v.27) energy function 
-void CHARMm27(sol *s)
+//CHARMM (v.22) energy function 
+void CHARMm22(sol *s)
 {
   int i;
   double bond; 

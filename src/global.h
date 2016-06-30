@@ -91,7 +91,7 @@ void init();
 void print_genome(sol *s, int n, const char* dir);
 void print_eval(sol *s);
 void evaluate(sol *s, char *problem);
-void CHARMm27(sol *s);
+void CHARMm22(sol *s);
 void add_to_archive(sol *s);
 int compare_to_archive(sol *s);
 void update_grid(sol *s);
