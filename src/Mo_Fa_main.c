@@ -272,6 +272,7 @@ int init_MOFA(int N_Fireflies)
       printf("fopen filed to open %s\n", protein);
       exit(1);
     }
+    
  int flag=0;
     for (i = 0; i < genes && flag == 0; i++)
     {
@@ -285,8 +286,6 @@ int init_MOFA(int N_Fireflies)
         curr->chrom[i].num_angles = 2 + get_num_sidechain_angles(curr->chrom[i].name);
     }
     fclose(fdesc);
-  
-    
     curr->energy = 0.0;
     curr->to_evaluate = 1;
     if(flag!=1){
@@ -414,7 +413,7 @@ int main(int argc, char *argv[])
   objectives = atoi(argv[3]);
   genes = atoi(argv[4]);
   archive = atoi(argv[5]);
-  iterations = atoi(argv[6]);
+  N_fireflies = atoi(argv[6]);
   Tmax = atoi(argv[7]);
   minmax = 0;
   sprintf(protein, "%s", argv[8]);
@@ -438,7 +437,8 @@ int main(int argc, char *argv[])
 
     signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  N_fireflies= 20;
+  //N_fireflies= 2;
+  cout << "N_Fireflies: "<< N_fireflies<<endl; 
   printf("\n\n\n Hola desde Antes de Init\n");
   int flag=init_MOFA(N_fireflies);
   
