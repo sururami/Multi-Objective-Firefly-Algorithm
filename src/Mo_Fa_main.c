@@ -88,62 +88,58 @@ void MO_FA_GMJ()
     int M2;
     double M1;
     int flag=0;
-    int num_evaluations=0;
-    for(int j=0; j< N_fireflies && num_evaluations <= 100; j++){
-        for(int k=0; k < N_fireflies && num_evaluations <= 100; k++){
+    num_evaluations=0;
+    //num_evaluations
+    while(num_evaluations <= 1000)
+    for(int j=0; j< N_fireflies; j++){
+        for(int k=0; k < N_fireflies; k++){
             if(j!=k){
                 result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
                 if(result==0){ // K Domina J ----------> Epsilon Dominating
-                    printf("Existen dos luciernagas distintas %d y %d \n", j,k );
+                 //   printf("Existen dos luciernagas distintas %d y %d \n", j,k );
 
                     //M1 = Distancia Euclídea de las dos soluciones dividido entre la Raiz de 2
-                    M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
+                    M1=sqrt(pow(&FireflyArray[j].objNorm[0] - &FireflyArray[k].objNorm[0],2)+pow(&FireflyArray[j].objNorm[1] - &FireflyArray[k].objNorm[1],2))/sqrt(2);
                     //M2 = Modificador de M1 para realizarlo un 25 % de las veces. Se le suma 1 para hacerlo al menos 1 vez
                     M2= 1 + (int)(((double)(genes)/4) * M1);
                     M1*=100;
-                    printf("Los parametros de mutacion estan activos \n" );
+         //           printf("Los parametros de mutacion estan activos \n" );
 
                     cl[0] = FireflyArray[j];   // Copia la Solucion en el primer Clon
                     cl[1] = FireflyArray[j];   // Copia la Solucion en el segundo Clon
     
-                    printf("cl[0] y cl[1] son iguales a la luciernaga j \n" );
-
-                    printf("Valor de M1: %f \n", M1 );
                     global_mutation(&cl[0], M1); // Mutacion Global sobre el primer Clon
-                    printf("Valor de M2: %d \n", M2 );
                     local_mutation(&cl[1], M2);  // Mutacion Local sobre el segundo Clon
-                    printf("cl[1] ya esta mutada \n" );
-
                     
-                    printf("La luciernaga clon 0 y la clon 1 son distintas \n" );
+                    evaluate(&cl[0], problem); /*Evaluamos la primera mutacion y aumentamos el numero de evaluaciones*/
+                    evaluate(&cl[1], problem); /*Evaluamos la segunda mutacion y aumentamos el numero de evaluaciones*/             
 
-                    
-                    evaluate(&cl[0], problem);
-                    evaluate(&cl[1], problem);              
-
-                    
-                    printf("Se han evaluado ambos clones \n" );
-
-                    
-	            num_evaluations+=2;
-
-                    printf("Se han realizado %d evaluaciones \n", num_evaluations );
                     result = comparate_min(&cl[0],&cl[1]);
+                    
                     if (result == 0){ 
-                        printf("La opcion 0 es mejor que la 1, cambiando \n" );
                         cl[0]=cl[1];
                     }
+                    
                     result = comparate_min(&cl[0],&FireflyArray[j]);
                     if(result==1){ //FB dominate FR
-                        printf("Se ha producido una mutacion\n" );
+                        
+                        
+                        double max_local_1=FireflyArray[j].objNorm[0];
+                        double max_local_2=FireflyArray[j].objNorm[1];
+                        
                         FireflyArray[j]=cl[0];
-                        printf("El clon ha sustituido a la original, Normalizando solucion \n" );
-                        Normalizar_sol(j);
-                        printf("Solucion Normalizada \n" );
+
+                        if(max_local_1 == max_obj1 || max_local_2 == max_local_2){
+                            Maximos_iniciales();
+                            Normalizar(0);
+                            Normalizar(1);
+                        }
+                        else{
+                            Normalizar_sol(j);
+                        }  
                     }
                 }
-                printf("Pasando a Nuevo dato, iteracion nº %d \n", j*k );
-                //print_sol(&FireflyArray[j],j,"Energia.energia");
+                printf("num_evaluations realizadas  %d \n", num_evaluations );
             }       
         }      
     }    
@@ -151,7 +147,6 @@ void MO_FA_GMJ()
 
 void Maximos_iniciales()
 {
-
   double a=FireflyArray[0].obj[0];
 
   max_obj1 = fabs(a);
@@ -162,8 +157,6 @@ void Maximos_iniciales()
    if (fabs(FireflyArray[i].obj[1]) > max_obj2) max_obj2=fabs(FireflyArray[i].obj[1]);
   }
 }
-
-
 void Normalizar(int objetivo)
 {
 
@@ -172,8 +165,6 @@ void Normalizar(int objetivo)
    FireflyArray[i].objNorm[objetivo]=((FireflyArray[i]).objNorm[objetivo]+1)/2;
   }
 }
-
-
 void Normalizar_sol(int i)
 {
 
@@ -188,7 +179,6 @@ void Normalizar_sol(int i)
    }
    else FireflyArray[i].objNorm[1]=(-1*FireflyArray[i].obj[1])/max_obj1;
 }
-
 int comparate_min(sol* s1, sol* s2)
 {
 /*Devuelve 0 si s1 domina a s2
@@ -339,8 +329,6 @@ void copySolution(sol* A, sol *B)
     }
     
 }
-
-
 void print_sol(sol* s,int p,int i,const char* file)
 {    
     FILE *fd;
@@ -365,8 +353,8 @@ void print_sol(sol* s,int p,int i,const char* file)
     fclose(fd);
     
 }
-
-void print_sol(sol* s,int p,const char* file){
+void print_sol(sol* s,int p,const char* file)
+{
     
     FILE *fd;
     char params_file[200];
@@ -385,7 +373,6 @@ void print_sol(sol* s,int p,const char* file){
   
     fclose(fd);   
 }
-
 
 
 int main(int argc, char *argv[])
@@ -435,18 +422,21 @@ int main(int argc, char *argv[])
 
   print_params("parameters.dat");
 
-    signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
+  signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
-  //N_fireflies= 2;
   cout << "N_Fireflies: "<< N_fireflies<<endl; 
-  printf("\n\n\n Hola desde Antes de Init\n");
   int flag=init_MOFA(N_fireflies);
   
-  printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
+  for(int i=0; i< N_fireflies; i++)
+	print_sol(&FireflyArray[i],i,"Sol_Inicial.txt");  
+
+  //printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
   
-  if(flag==0)
+  if(flag!=0){
     MO_FA_GMJ();
-  
+   for(int i=0; i< N_fireflies; i++)
+	print_sol(&FireflyArray[i],i,"Sol_Fin.txt");  
+  }
   free(curr);
   free(FireflyArray);
   free(cl);
