@@ -45,7 +45,7 @@ using namespace std;
 #endif
 /*----------------------------------------------------------------------*/
 
-# define COIN(p)  (RandomUniform() * 100 < p)
+# define COIN(p)  (RandomUniform() < p)
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
@@ -129,7 +129,7 @@ void copySolution(sol* A,sol* B);
 void Normalizar_sol(int i);
 void Maximos_iniciales();
 void Normalizar(int objetivo);
-int comparate_min(sol* a, sol *b);
+int dominate(sol* a, sol *b);
 void print_sol(sol* s,int p,int i,const char* file);
 void print_sol(sol* s,int p,const char* file);
 void inicializacion_MOABC();

@@ -3,11 +3,6 @@
   
 */
 //
-// MO_FA_GMJ is described in the paper:
-//
-//    Cutello V., Narzisi G. , Nicosia G.:
-//    A Multi-Objective Evolutionary Approach to the Protein Structure Prediction Problem.
-//    Journal of the Royal Society Interface, Royal Society Publications London.
 
 /*********************************************************************************************************
  * To run :                                                                                              *
@@ -49,7 +44,7 @@ sol *arc; // archive of solutions
 sol *app;
 
 int N_fireflies;
-double max_obj1=0, max_obj2=0;
+double max_obj0=0, max_obj1=0;
 
 
 int phi[8][2];
@@ -84,29 +79,35 @@ MultiObjective Firefly Algorithm
 
 void MO_FA_GMJ()
 {
+
+    printf("Inicio Programa\n");
+
     int result;
     int M2;
     double M1;
-    int flag=0;
+    int num_evaluations_previous;
     num_evaluations=0;
-    //num_evaluations
-    while(num_evaluations <= 1000)
+    while(num_evaluations <= 15000) {
+     
+    num_evaluations_previous = num_evaluations;
     for(int j=0; j< N_fireflies; j++){
         for(int k=0; k < N_fireflies; k++){
             if(j!=k){
-                result = comparate_min(&FireflyArray[k], &FireflyArray[j]);
-                if(result==0){ // K Domina J ----------> Epsilon Dominating
+                printf("-------------\n");
+                result = dominate(&FireflyArray[k], &FireflyArray[j]);
+                if(result==1){ // K Domina J ----------> Epsilon Dominating
                  //   printf("Existen dos luciernagas distintas %d y %d \n", j,k );
 
                     //M1 = Distancia Euclídea de las dos soluciones dividido entre la Raiz de 2
-                    M1=sqrt(pow(&FireflyArray[j].objNorm[0] - &FireflyArray[k].objNorm[0],2)+pow(&FireflyArray[j].objNorm[1] - &FireflyArray[k].objNorm[1],2))/sqrt(2);
+                    M1=sqrt(pow(FireflyArray[j].objNorm[0] - FireflyArray[k].objNorm[0],2)+pow(FireflyArray[j].objNorm[1] - FireflyArray[k].objNorm[1],2))/sqrt(2);
+                    M1=exp(-2.0*M1);
                     //M2 = Modificador de M1 para realizarlo un 25 % de las veces. Se le suma 1 para hacerlo al menos 1 vez
                     M2= 1 + (int)(((double)(genes)/4) * M1);
-                    M1*=100;
+                    //M1*=100;
          //           printf("Los parametros de mutacion estan activos \n" );
 
-                    cl[0] = FireflyArray[j];   // Copia la Solucion en el primer Clon
-                    cl[1] = FireflyArray[j];   // Copia la Solucion en el segundo Clon
+                    cl[0] = FireflyArray[k];   // Copia la Solucion en el primer Clon
+                    cl[1] = FireflyArray[k];   // Copia la Solucion en el segundo Clon
     
                     global_mutation(&cl[0], M1); // Mutacion Global sobre el primer Clon
                     local_mutation(&cl[1], M2);  // Mutacion Local sobre el segundo Clon
@@ -114,25 +115,27 @@ void MO_FA_GMJ()
                     evaluate(&cl[0], problem); /*Evaluamos la primera mutacion y aumentamos el numero de evaluaciones*/
                     evaluate(&cl[1], problem); /*Evaluamos la segunda mutacion y aumentamos el numero de evaluaciones*/             
 
-                    result = comparate_min(&cl[0],&cl[1]);
+                    result = dominate(&cl[1],&cl[0]);
                     
-                    if (result == 0){ 
+                    printf("Comparacion\n");
+                    if (result == 1){ 
                         cl[0]=cl[1];
                     }
                     
-                    result = comparate_min(&cl[0],&FireflyArray[j]);
+                    result = dominate(&cl[0],&FireflyArray[j]);
                     if(result==1){ //FB dominate FR
                         
                         
-                        double max_local_1=FireflyArray[j].objNorm[0];
-                        double max_local_2=FireflyArray[j].objNorm[1];
+                        double max_local0=fabs(FireflyArray[j].obj[0]);
+                        double max_local1=fabs(FireflyArray[j].obj[1]);
                         
                         FireflyArray[j]=cl[0];
 
-                        if(max_local_1 == max_obj1 || max_local_2 == max_local_2){
+                        if((max_local0 == max_obj0 && max_obj0 != fabs(cl[0].obj[0])) ||
+                           (max_local1 == max_obj1 && max_obj1 != fabs(cl[0].obj[1]))){
                             Maximos_iniciales();
-                            Normalizar(0);
-                            Normalizar(1);
+                            if (max_local0 == max_obj0 && max_obj0 != fabs(cl[0].obj[0])) Normalizar(0);
+                            if (max_local1 == max_obj1 && max_obj1 != fabs(cl[0].obj[1])) Normalizar(1);
                         }
                         else{
                             Normalizar_sol(j);
@@ -143,55 +146,70 @@ void MO_FA_GMJ()
             }       
         }      
     }    
+
+    // Verificar estancamiento
+    if (num_evaluations == num_evaluations_previous)
+    {
+     for(int i=0; i< N_fireflies; i++)
+	print_sol(&FireflyArray[i],i,"Sol_Fin.txt");  
+ 
+     init_MOFA(N_fireflies);
+    }
+ 
+  }
 }
 
 void Maximos_iniciales()
 {
-  double a=FireflyArray[0].obj[0];
 
-  max_obj1 = fabs(a);
-  max_obj2 = fabs(FireflyArray[0].obj[1]);
+  max_obj0 = fabs(FireflyArray[0].obj[0]);
+  max_obj1 = fabs(FireflyArray[0].obj[1]);
 
   for(int i=1; i < N_fireflies; i++){
-   if (fabs(FireflyArray[i].obj[0]) > max_obj1) max_obj1=fabs(FireflyArray[i].obj[0]);
-   if (fabs(FireflyArray[i].obj[1]) > max_obj2) max_obj2=fabs(FireflyArray[i].obj[1]);
+   if (fabs(FireflyArray[i].obj[0]) > max_obj0) max_obj0=fabs(FireflyArray[i].obj[0]);
+   if (fabs(FireflyArray[i].obj[1]) > max_obj1) max_obj1=fabs(FireflyArray[i].obj[1]);
   }
 }
 void Normalizar(int objetivo)
 {
 
+  double max_obj;
+  
+  if (objetivo == 0) max_obj=max_obj0;
+  else max_obj=max_obj1;
+
   for (int i=0; i < N_fireflies; i++){
-   FireflyArray[i].objNorm[objetivo]=(-1*(FireflyArray[i]).obj[objetivo])/max_obj1;
-   FireflyArray[i].objNorm[objetivo]=((FireflyArray[i]).objNorm[objetivo]+1)/2;
+   FireflyArray[i].objNorm[objetivo]=FireflyArray[i].obj[objetivo]/max_obj;
+   FireflyArray[i].objNorm[objetivo]=(FireflyArray[i].objNorm[objetivo]+1)/2;
   }
 }
 void Normalizar_sol(int i)
 {
 
-   if (fabs(FireflyArray[i].obj[0]) > max_obj1) { 
-      max_obj1=fabs(FireflyArray[i].obj[0]);
+   if (fabs(FireflyArray[i].obj[0]) > max_obj0) { 
+      max_obj0=fabs(FireflyArray[i].obj[0]);
       Normalizar(0);
    }
-   else FireflyArray[i].objNorm[0]=(-1*FireflyArray[i].obj[0])/max_obj1;
-   if (fabs(FireflyArray[i].obj[1]) > max_obj2) {
-      max_obj2=fabs(FireflyArray[i].obj[1]);
+   else FireflyArray[i].objNorm[0]=(((FireflyArray[i].obj[0])/max_obj0)+1)/2;
+   if (fabs(FireflyArray[i].obj[1]) > max_obj1) {
+      max_obj1=fabs(FireflyArray[i].obj[1]);
       Normalizar(1);
    }
-   else FireflyArray[i].objNorm[1]=(-1*FireflyArray[i].obj[1])/max_obj1;
+   else FireflyArray[i].objNorm[1]=(((FireflyArray[i].obj[1])/max_obj1)+1)/2;
 }
-int comparate_min(sol* s1, sol* s2)
+int dominate(sol* s1, sol* s2)
 {
-/*Devuelve 0 si s1 domina a s2
-  Devuelve 1 si s2 domina a s1
-  Devuelve -1 en caso de igualdad
+/*Devuelve 1 si s1 domina a s2
+  Devuelve -1 si s2 domina a s1
+  Devuelve 0 en caso de no dominancia mutua
 */
 
 if( (s1->obj[0] <= s2->obj[0]) && (s1->obj[1] <= s2->obj[1]) && ((s1->obj[0] < s2->obj[0]) || (s1->obj[1] < s2->obj[1] ) ) )
-	return 0;
+	return 1;
 
 if( (s2->obj[0] <= s1->obj[0]) && (s2->obj[1] <= s1->obj[1]) && ((s2->obj[0] < s1->obj[0]) || (s2->obj[1] < s1->obj[1] ) ) )
-	return 1;
-return -1;
+	return -1;
+return 0;
 }
 
 int init_MOFA(int N_Fireflies)
@@ -207,7 +225,7 @@ int init_MOFA(int N_Fireflies)
 
   char buffer[160];
 
-  num_evaluations = 0;
+
 	 
   if (!strcmp(problem, "CHARMm22"))
 	strcpy(params,"bin/params/charmm22.prm");
@@ -369,7 +387,7 @@ void print_sol(sol* s,int p,const char* file)
         printf("fopen fallo al abrir %s\n",params_file);
         exit(-1);
     }
-    fprintf(fd,"%f,%lf,%lf\n", s->energy,s->obj[0],s->obj[1]);
+    fprintf(fd,"%f,%f,%f\n", s->energy,s->obj[0],s->obj[1]);
   
     fclose(fd);   
 }
@@ -414,7 +432,7 @@ int main(int argc, char *argv[])
   srand(r=random());
 
   RandomInitialise(Randint(0,31328),Randint(0,30081));
-   
+  
   sigma = 1.0;
 
   strcat(command,dir);
@@ -425,6 +443,7 @@ int main(int argc, char *argv[])
   signal(SIGINT,backup);// handler for program termination by keyboard (SIGINT signal)
 
   cout << "N_Fireflies: "<< N_fireflies<<endl; 
+  num_evaluations = 0;
   int flag=init_MOFA(N_fireflies);
   
   for(int i=0; i< N_fireflies; i++)
@@ -432,7 +451,7 @@ int main(int argc, char *argv[])
 
   //printf("\n\nEstado de la Inicialiacion: %d [0 == ok --- 1 == Fallo]\n\n", flag);
   
-  if(flag!=0){
+  if(flag==0){
     MO_FA_GMJ();
    for(int i=0; i< N_fireflies; i++)
 	print_sol(&FireflyArray[i],i,"Sol_Fin.txt");  
